@@ -13,7 +13,7 @@ from pyrogram import Client as app
 from config import Config
 from helper_funcs.fsub import handle_force_sub
 
-@app.on_message(pyrogram.filters.private & (pyrogram.filters.document | pyrogram.filters.video))
+@app.on_message(filters.media & filters.private & filters.incoming)
 async def tg_to_gdrive_upload(bot, update):
     back = await handle_force_sub(bot, update)
     if back == 400:
@@ -54,7 +54,7 @@ async def tg_to_gdrive_upload(bot, update):
         size = get_readable_file_size(get_path_size(download_directory))
         try:
             await bot.edit_message_text(
-                text="📥Download Completed!!!\nNow Generating 🎬streaming 🔗links.",
+                text="📥Download Completed!!!\nNow Uploading.",
                 chat_id=reply_message.chat.id,
                 message_id=reply_message.message_id
             )
@@ -65,15 +65,35 @@ async def tg_to_gdrive_upload(bot, update):
         gd_url, index_url = drive.upload(download_directory)
         uri = str_to_b64(index_url)
         url = f"https://{Config.VIDEO_PLAYER_URL}/play?id={uri}"
-        button_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text="Play On Website", url=url)]])
-        await bot.send_message(
-            text=f"<b>Streaming link Generated</b> \n\n<b>File:</b> {up_name} \n\n<b>Size:</b> {size}\n\n<b>Link:</b>{url}",
-            chat_id=update.chat.id,
-            reply_to_message_id=update.message_id,
-            disable_web_page_preview=True,
-            reply_markup=button_markup)
-        try:
-            os.remove(download_directory)
-        except:
-            pass
-        await reply_message.delete()
+        video = '.mp4', '.mkv', 'avi', '.ts', '.webm', '.flv', '.wmv', '.mov', '.gif'
+        image = '.jpg', '.png', '.jpeg', 'webp'
+        audio = '.mp3', '.m4a', '.ogg', '.wma', 'aac', 'wav' ,'flac'
+        via = '.mp4', '.mkv', 'avi', '.ts', '.webm', '.flv', '.wmv', '.mov', '.gif', '.mp3', '.m4a', '.ogg', '.wma', 'aac', 'wav' ,'flac'
+        forbid = 'xxx', 'sex', 'porn'
+        if any(x in up_name for x in forbid):
+            GENERATED = "You will be banned soon😈😈"
+        elif up_name.endswith(via):
+            GENERATED = f"<b>link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}\n\n<b>Link:</b> [here]({url})"
+        elif up_name.endswith(image):
+            GENERATED = f"<b>link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}\n\n<b>Link:</b> [here]({url})\n\nI don't think you want to open image on website."
+        else:
+            GENERATED = f"<b>Link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}"
+        buttons = [[InlineKeyboardButton(text="Download", url=index_url)]]
+        if up_name.endswith(video):
+            buttons.append([InlineKeyboardButton(text="Stream Video", url=url)])
+        elif up_name.endswith(image):
+            buttons.append([InlineKeyboardButton(text="Open Image On Website", url=url)])
+        elif up_name.endswith(audio):
+            buttons.append([InlineKeyboardButton(text="Stream Audio", url=url)])
+        button_markup = InlineKeyboardMarkup(buttons)
+    await bot.send_message(
+        text=GENERATED,
+        chat_id=update.chat.id,
+        reply_to_message_id=update.message_id,
+        disable_web_page_preview=True,
+        reply_markup=button_markup)
+    try:
+        os.remove(download_directory)
+    except:
+        pass
+    await reply_message.delete()
