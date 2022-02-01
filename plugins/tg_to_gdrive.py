@@ -70,20 +70,23 @@ async def tg_to_gdrive_upload(bot, update):
         audio = '.mp3', '.m4a', '.ogg', '.wma', 'aac', 'wav' ,'flac'
         via = '.mp4', '.mkv', 'avi', '.ts', '.webm', '.flv', '.wmv', '.mov', '.gif', '.mp3', '.m4a', '.ogg', '.wma', 'aac', 'wav' ,'flac'
         forbid = 'xxx', 'sex', 'porn'
-        if any(x in up_name for x in forbid):
-            GENERATED = "You will be banned soon😈😈"
-        elif up_name.endswith(via):
+        if any(x in up_name.lower() for x in forbid):
+            if update.from_user.id not in Config.AUTH_USERS:
+                GENERATED = "You will be banned soon😈😈"
+            else:
+                GENERATED = f"<b>link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}\n\n<b>Link:</b> [here]({url})"
+        elif up_name.lower().endswith(via):
             GENERATED = f"<b>link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}\n\n<b>Link:</b> [here]({url})"
-        elif up_name.endswith(image):
+        elif up_name.lower().endswith(image):
             GENERATED = f"<b>link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}\n\n<b>Link:</b> [here]({url})\n\nI don't think you want to open image on website."
         else:
             GENERATED = f"<b>Link Generated</b> \n\n<b>File:</b> [{up_name}]({index_url}) \n\n<b>Size:</b> {size}"
         buttons = [[InlineKeyboardButton(text="Download", url=index_url)]]
-        if up_name.endswith(video):
+        if up_name.lower().endswith(video):
             buttons.append([InlineKeyboardButton(text="Stream Video", url=url)])
-        elif up_name.endswith(image):
+        elif up_name.lower().endswith(image):
             buttons.append([InlineKeyboardButton(text="Open Image On Website", url=url)])
-        elif up_name.endswith(audio):
+        elif up_name.lower().endswith(audio):
             buttons.append([InlineKeyboardButton(text="Stream Audio", url=url)])
         button_markup = InlineKeyboardMarkup(buttons)
     await bot.send_message(
