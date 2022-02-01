@@ -9,6 +9,8 @@ class Config((object)):
     # Get these values from my.telegram.org
     APP_ID = int(os.environ.get("APP_ID", 1234567))
     API_HASH = os.environ.get("API_HASH", "")
+    # Sudo Users
+    AUTH_USERS = {int(x) for x in os.environ.get("AUTH_USERS", "").split()}
     # Your Updates channel username 
     UPDATES_CHANNEL = os.environ.get("UPDATES_CHANNEL", None)
     # token.pickle file link
