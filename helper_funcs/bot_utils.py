@@ -116,3 +116,22 @@ async def input_str(bot,message, msg):
     else:
         text = message.command[1]
     return str_to_b64(text)
+async def sanitize_text(input_text):
+    sanitized_data = input_text.translate({ord(c): "-" for c in "+|"})
+    sanitized_data = sanitized_data.translate({ord(c): "" for c in "™"})
+    sanitized_data = sanitized_data.replace("  ", " ")
+    return sanitized_data
+
+
+async def sanitize_file_name(input_text):
+    sanitized_fileName = input_text.translate({ord(c): "" for c in "/\:*?\"<>|"})
+    if Config.STRIP_FILE_NAMES:
+        for fname in Config.STRIP_FILE_NAMES.split("|"):
+            sanitized_fileName = sanitized_fileName.replace(fname, "").strip()
+        sanitized_fileName = sanitized_fileName.replace("Â", "").strip()
+        sanitized_fileName = sanitized_fileName.replace("–", "-").strip()
+        sanitized_fileName = sanitized_fileName.replace("\xc2\xa0"," ").strip()
+        sanitized_fileName = sanitized_fileName.replace("\x0a", "").strip()
+        sanitized_fileName = sanitized_fileName.replace(".torrent", "").strip()
+        sanitized_fileName = sanitized_fileName.replace("  ", " ")
+    return sanitized_fileName;
