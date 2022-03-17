@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # (c) SpEcHiDe
 
+'''
 import asyncio
 import os
 import pathlib
@@ -115,3 +116,4 @@ def get_path_size(path):
             abs_path = os.path.join(root, f)
             total_size += os.path.getsize(abs_path)
     return total_size
+'''
